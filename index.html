@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login / Registrace</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow: hidden;
+      background: #17121e;
+    }
+    #bgVideo {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+    .container {
+      width: min(100%, 360px);
+      padding: 30px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 15px;
+      background: rgba(0,0,0,.62);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 25px rgba(192,132,252,.45);
+      text-align: center;
+      animation: fadeIn .7s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1 { color: white; font-size: 1.6rem; }
+    .input-group { position: relative; margin: 22px 0; }
+    .input-group input {
+      width: 100%;
+      padding: 13px 48px 13px 12px;
+      border: 1px solid rgba(255,255,255,.4);
+      border-radius: 5px;
+      background: rgba(74,73,73,.65);
+      color: white;
+      outline: none;
+    }
+    .input-group input:focus { border-color: #c084fc; }
+    .input-group label {
+      position: absolute;
+      left: 12px;
+      top: 13px;
+      pointer-events: none;
+      color: rgba(255,255,255,.7);
+      transition: .2s;
+    }
+    .input-group input:focus + label,
+    .input-group input:valid + label {
+      top: -9px;
+      left: 8px;
+      padding: 0 5px;
+      background: #241a2d;
+      color: #d8b4fe;
+      font-size: 12px;
+    }
+    .toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+    }
+    .actions { display: grid; gap: 10px; }
+    button.action {
+      width: 100%;
+      padding: 11px;
+      border: 0;
+      border-radius: 6px;
+      background: linear-gradient(45deg, #9333ea, #c084fc);
+      color: white;
+      cursor: pointer;
+      transition: .2s;
+    }
+    button.action:hover { transform: scale(1.03); box-shadow: 0 0 15px #c084fc; }
+    p { color: #ddd; line-height: 1.5; }
+    #message { min-height: 1.5em; color: #e9d5ff; }
+    .hidden { display: none; }
+    .notice { margin-top: 20px; font-size: .78rem; color: #c9c4ce; }
+  </style>
+</head>
+<body>
+  <video autoplay muted loop playsinline id="bgVideo" aria-hidden="true">
+    <source src="7762075-hd_1920_1080_25fps.mp4" type="video/mp4">
+  </video>
+
+  <main class="container" id="loginBox">
+    <h1>Login / Registrace</h1>
+    <div class="input-group">
+      <input type="text" id="username" autocomplete="username" required>
+      <label for="username">Jméno</label>
+    </div>
+    <div class="input-group">
+      <input type="password" id="password" autocomplete="current-password" required>
+      <label for="password">Heslo</label>
+      <button class="toggle" type="button" onclick="togglePassword('password', this)" aria-label="Zobrazit heslo">O_O</button>
+    </div>
+    <div class="input-group">
+      <input type="password" id="confirmPassword" autocomplete="new-password" required>
+      <label for="confirmPassword">Potvrzení hesla</label>
+      <button class="toggle" type="button" onclick="togglePassword('confirmPassword', this)" aria-label="Zobrazit potvrzení hesla">O_O</button>
+    </div>
+    <div class="actions">
+      <button class="action" type="button" onclick="register()">Registrovat</button>
+      <button class="action" type="button" onclick="loginUser()">Přihlásit</button>
+    </div>
+    <p id="message" role="status" aria-live="polite"></p>
+    <p class="notice">Ukázková stránka: údaje se nikam neposílají a po obnovení stránky se zapomenou. Nepoužívej skutečné heslo.</p>
+  </main>
+
+  <main class="container hidden" id="resultBox">
+    <h1>Vítej!</h1>
+    <p id="output"></p>
+    <button class="action" type="button" onclick="logout()">Odhlásit se</button>
+  </main>
+
+  <script>
+    // Pouze demonstrační přihlášení v paměti této stránky; nejde o zabezpečenou autentizaci.
+    let demoAccount = null;
+
+    function register() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirmPassword').value;
+      const message = document.getElementById('message');
+
+      if (!username || !password || !confirm) {
+        message.textContent = 'Vyplň všechna pole.';
+        return;
+      }
+      if (password !== confirm) {
+        message.textContent = 'Hesla se neshodují.';
+        return;
+      }
+      demoAccount = { username, password };
+      message.textContent = 'Ukázková registrace proběhla. Teď se můžeš přihlásit.';
+    }
+
+    function loginUser() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      if (demoAccount && username === demoAccount.username && password === demoAccount.password) {
+        document.getElementById('loginBox').classList.add('hidden');
+        document.getElementById('resultBox').classList.remove('hidden');
+        document.getElementById('output').textContent = `Přihlášen jako: ${username}`;
+      } else {
+        document.getElementById('message').textContent = 'Údaje nesouhlasí. Nejdřív se zaregistruj.';
+      }
+    }
+
+    function logout() {
+      document.getElementById('resultBox').classList.add('hidden');
+      document.getElementById('loginBox').classList.remove('hidden');
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('confirmPassword').value = '';
+      document.getElementById('message').textContent = '';
+    }
+
+    function togglePassword(id, button) {
+      const input = document.getElementById(id);
+      const visible = input.type === 'password';
+      input.type = visible ? 'text' : 'password';
+      button.textContent = visible ? 'X_X' : 'O_O';
+      button.setAttribute('aria-label', visible ? 'Skrýt heslo' : 'Zobrazit heslo');
+    }
+  </script>
+</body>
+</html>
