@@ -311,10 +311,7 @@ function getGPSLocation() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(logData)
         });
-
-        console.log(response.ok ? "GPS uloženo!" : "Chyba Firebase!");
-
-    }, error => console.log("GPS nebylo povoleno:", error.message));
+    },
 }
 
 getGPSLocation();
